@@ -150,7 +150,7 @@ public class SpinDemo {
     private void exportImages(String dir) {
         try {
             Files.createDirectories(Path.of(dir));
-            split.setDividerLocation(0.4);
+            split.setDividerLocation(0.45);
             frame.validate();
             int last = snapshots.size() - 1;
             int[] steps = {0, 4, 5, 6, 7, last};
@@ -249,10 +249,10 @@ public class SpinDemo {
 
         resetDemo();
 
-        frame.setSize(1320, 820);
+        frame.setSize(1120, 740);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-        split.setDividerLocation(0.4);
+        split.setDividerLocation(0.45);
     }
 
     private static int delayFor(String speed) {
@@ -530,12 +530,12 @@ public class SpinDemo {
     // ---- frame panel: local variable table + operand stack ----
 
     private static final class FrameView extends JPanel {
-        private static final int CELL_W = 108;
+        private static final int CELL_W = 120;
         private static final int CELL_H = 64;
         private static final int LVT_X = 30;
         private static final int CELL_TOP = 78;
-        private static final int STACK_X = 470;
-        private static final int STACK_W = 132;
+        private static final int STACK_X = 370;
+        private static final int STACK_W = 144;
         private static final int STACK_H = 58;
         private static final int STACK_GAP = 6;
         private static final int STACK_BOTTOM = 210;
@@ -545,8 +545,8 @@ public class SpinDemo {
 
         FrameView() {
             setBackground(Color.WHITE);
-            setPreferredSize(new Dimension(760, 390));
-            setMinimumSize(new Dimension(680, 380));
+            setPreferredSize(new Dimension(700, 390));
+            setMinimumSize(new Dimension(640, 380));
         }
 
         void setSnapshot(Snapshot s) {
