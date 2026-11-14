@@ -12,7 +12,6 @@ import java.awt.RenderingHints;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -566,7 +565,7 @@ public class AddFrameDemo {
             // slot number below the cell, like the axis label in the article
             g.setFont(MONO_SMALL);
             g.setColor(MUTED);
-            String label = String.valueOf(slot);
+            String label = "slot " + slot;
             g.drawString(label, x + (CELL_W - g.getFontMetrics().stringWidth(label)) / 2,
                     CELL_TOP + CELL_H + 16);
         }
@@ -607,7 +606,7 @@ public class AddFrameDemo {
                 // stack index to the right of each cell: 0 is the bottom
                 g.setFont(MONO_SMALL);
                 g.setColor(MUTED);
-                g.drawString(String.valueOf(i), STACK_X + STACK_W + 10, y + STACK_H / 2 + 4);
+                g.drawString("slot " + i, STACK_X + STACK_W + 10, y + STACK_H / 2 + 4);
             }
         }
 
@@ -659,7 +658,7 @@ public class AddFrameDemo {
         private void paintLegend(Graphics2D g) {
             int y = FRAME_BOTTOM + 30;
             legendItem(g, 30, y, FRESH_FILL, null, "just pushed");
-            legendItem(g, 190, y, VALUE_FILL, GRID_LINE, "value in slot / stack");
+            legendItem(g, 190, y, VALUE_FILL, GRID_LINE, "existing value");
             legendItem(g, 410, y, Color.WHITE, READ_COLOR, "read by this instruction");
             legendItem(g, 630, y, EMPTY_FILL, new Color(189, 189, 189), "empty");
         }
