@@ -677,7 +677,7 @@ public class SpinDemo {
             // slot number below the cell, like the axis label in the article
             g.setFont(MONO_SMALL);
             g.setColor(MUTED);
-            String label = String.valueOf(slot);
+            String label = "slot " + slot;
             g.drawString(label, x + (CELL_W - g.getFontMetrics().stringWidth(label)) / 2,
                     CELL_TOP + CELL_H + 16);
         }
@@ -718,7 +718,7 @@ public class SpinDemo {
                 // stack index to the right of each cell: 0 is the bottom
                 g.setFont(MONO_SMALL);
                 g.setColor(MUTED);
-                g.drawString(String.valueOf(i), STACK_X + STACK_W + 10, y + STACK_H / 2 + 4);
+                g.drawString("slot " + i, STACK_X + STACK_W + 10, y + STACK_H / 2 + 4);
             }
         }
 
