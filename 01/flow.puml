@@ -1,0 +1,16 @@
+@startuml
+start
+:**iload_1**
+把局部变量表里 //slot 1// 的 //a// 压栈
+操作数栈：[a];
+:**iload_2**
+把局部变量表里 //slot 2// 的 //b// 压栈
+操作数栈：[a, b];
+:**iadd**
+弹出 b、a，相加后把 3 压回
+操作数栈：[3];
+:**ireturn**
+把 3 交回给 Demo.main，帧弹出
+方法结束;
+stop
+@enduml
