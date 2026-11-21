@@ -12,6 +12,7 @@ import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
@@ -21,8 +22,10 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
@@ -259,7 +262,21 @@ public class InstructionDemo {
             pc += len;
         }
 
-        // simulate, one step per instruction
+        List<Step> steps = simulate(code, initVals, locals, insns, cpValues, signature);
+        return new Example(label, prefix, signature, bodyLine, code, maxStack, locals, cp, cpValues,
+                List.copyOf(insns), List.copyOf(steps), footer);
+    }
+
+    /** Rebuild an example's execution snapshots with new initial local values. */
+    private static Example withValues(Example ex, int[] initVals) {
+        List<Step> steps = simulate(ex.code(), initVals, ex.locals(), ex.insns(), ex.cpValues(), ex.signature());
+        return new Example(ex.label(), ex.prefix(), ex.signature(), ex.bodyLine(), ex.code(),
+                ex.maxStack(), ex.locals(), ex.cp(), ex.cpValues(), ex.insns(), List.copyOf(steps), ex.footer());
+    }
+
+    /** Simulate one step per instruction, using the given initial local values. */
+    private static List<Step> simulate(byte[] code, int[] initVals, List<LocVar> locals,
+                                       List<Insn> insns, Map<Integer, Integer> cpValues, String signature) {
         int[] vals = initVals.clone();
         List<Integer> stack = new ArrayList<>();
         List<Step> steps = new ArrayList<>();
@@ -334,8 +351,7 @@ public class InstructionDemo {
             steps.add(new Step(i, in.offset() + in.length(), vals.clone(), List.copyOf(stack), freshTop,
                     alive, returned, readLocal, writtenLocal, in.cpIndex(), desc));
         }
-        return new Example(label, prefix, signature, bodyLine, code, maxStack, locals, cp, cpValues,
-                List.copyOf(insns), List.copyOf(steps), footer);
+        return steps;
     }
 
     private static String effectOf(Kind kind, int imm, int localIndex, int localConst, int cpIndex) {
@@ -376,6 +392,7 @@ public class InstructionDemo {
 
     private Example example = ADD;
     private int step;
+    private JFrame frame;
     private JComboBox<Example> methodBox;
     private JButton stepButton;
     private JButton runButton;
@@ -387,6 +404,11 @@ public class InstructionDemo {
     private ByteStreamView byteView;
     private RuntimeView runtimeView;
     private Timer timer;
+
+    /** Current initial local values per method (slot 0 = this, followed by real parameters). */
+    private final Map<String, int[]> paramValues = new HashMap<>();
+    private JPanel paramPanel;
+    private JTextField[] paramFields;
 
     public static void main(String[] args) throws Exception {
         if (args.length == 2 && "--render".equals(args[0])) {
@@ -435,16 +457,27 @@ public class InstructionDemo {
     }
 
     private InstructionDemo() {
+        for (Example ex : EXAMPLES) {
+            int[] vals = new int[ex.locals().size()];
+            for (int i = 0; i < vals.length; i++) {
+                vals[i] = ex.steps().get(0).localVals()[i];
+            }
+            paramValues.put(ex.prefix(), vals);
+        }
         createAndShowGui();
     }
 
     private void createAndShowGui() {
-        JFrame frame = new JFrame("JVM instruction bytes demo — opcode, operands, constant pool");
+        frame = new JFrame("JVM instruction bytes demo — opcode, operands, constant pool");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
-        JPanel control = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel control = new JPanel();
+        control.setLayout(new BoxLayout(control, BoxLayout.Y_AXIS));
         control.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+
+        JPanel methodRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        methodRow.setAlignmentX(0f);
 
         methodBox = new JComboBox<>(EXAMPLES);
         methodBox.setRenderer((list, value, index, selected, focus) -> {
@@ -466,12 +499,17 @@ public class InstructionDemo {
         progressLabel.setFont(MONO);
         progressLabel.setForeground(MUTED);
 
-        control.add(new JLabel("method"));
-        control.add(methodBox);
-        control.add(stepButton);
-        control.add(runButton);
-        control.add(resetButton);
-        control.add(progressLabel);
+        methodRow.add(new JLabel("method"));
+        methodRow.add(methodBox);
+        methodRow.add(stepButton);
+        methodRow.add(runButton);
+        methodRow.add(resetButton);
+        methodRow.add(progressLabel);
+        control.add(methodRow);
+
+        paramPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        paramPanel.setAlignmentX(0f);
+        control.add(paramPanel);
 
         sourceView = new SourceView();
         insnView = new InsnView();
@@ -523,10 +561,64 @@ public class InstructionDemo {
     }
 
     private void applyExample(Example ex) {
-        example = ex;
-        insnView.setExample(ex);
-        byteView.setExample(ex);
-        runtimeView.setExample(ex);
+        int[] vals = paramValues.get(ex.prefix());
+        example = vals == null ? ex : withValues(ex, vals);
+        insnView.setExample(example);
+        byteView.setExample(example);
+        runtimeView.setExample(example);
+        updateParamPanel();
+        resetDemo();
+    }
+
+    /** Build the parameter input row for the currently selected method. */
+    private void updateParamPanel() {
+        paramPanel.removeAll();
+        paramFields = new JTextField[0];
+        int count = example.locals().size() - 1; // slot 0 is `this`
+        if (count > 0) {
+            paramPanel.add(new JLabel("parameters:"));
+            paramFields = new JTextField[count];
+            int[] vals = paramValues.get(example.prefix());
+            for (int i = 0; i < count; i++) {
+                String name = example.locals().get(i + 1).name();
+                paramPanel.add(new JLabel(name + " ="));
+                paramFields[i] = new JTextField(String.valueOf(vals[i + 1]), 6);
+                paramFields[i].setFont(MONO);
+                paramFields[i].setToolTipText("Enter an int value for parameter " + name);
+                paramFields[i].addActionListener(e -> applyParameterValues());
+                paramPanel.add(paramFields[i]);
+            }
+            JButton applyButton = new JButton("Apply");
+            applyButton.setToolTipText("Rebuild the demo with these parameter values");
+            applyButton.addActionListener(e -> applyParameterValues());
+            paramPanel.add(applyButton);
+            paramPanel.add(new JLabel("  (or press Enter in a field)"));
+        } else {
+            paramPanel.add(new JLabel("parameters: none (this method takes no arguments)"));
+        }
+        paramPanel.revalidate();
+        paramPanel.repaint();
+    }
+
+    /** Read the text fields, rebuild the example, and refresh all views. */
+    private void applyParameterValues() {
+        int[] vals = paramValues.get(example.prefix()).clone();
+        for (int i = 0; i < paramFields.length; i++) {
+            String text = paramFields[i].getText().trim();
+            try {
+                vals[i + 1] = Integer.parseInt(text);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame,
+                        "Invalid integer for parameter " + example.locals().get(i + 1).name() + ": " + text,
+                        "Invalid parameter", JOptionPane.ERROR_MESSAGE);
+                paramFields[i].setText(String.valueOf(paramValues.get(example.prefix())[i + 1]));
+                return;
+            }
+        }
+        paramValues.put(example.prefix(), vals);
+        example = withValues(example, vals);
+        byteView.setExample(example);
+        runtimeView.setExample(example);
         resetDemo();
     }
 
