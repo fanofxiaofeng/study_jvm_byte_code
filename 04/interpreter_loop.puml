@@ -1,0 +1,26 @@
+@startuml
+' JVM 解释器主循环（JVMS 2.11）
+' 对应文章第 27~31 行：
+'   do {
+'       atomically calculate pc and fetch opcode at pc;
+'       if (operands) fetch operands;
+'       execute the action for the opcode;
+'   } while (there is more to do);
+
+title JVM 解释器主循环（JVMS 2.11）
+
+start
+
+repeat
+  :计算 pc，在 pc 处取 opcode;
+  if (该指令带操作数？) then (是)
+    :取操作数（fetch operands）;
+  else (否)
+    :无操作数，跳过;
+  endif
+  :执行 opcode 对应的动作;
+repeat while (还有后续的指令？) is (是) not (否)
+
+stop
+
+@enduml
