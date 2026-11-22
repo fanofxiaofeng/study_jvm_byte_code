@@ -10,7 +10,7 @@ start
 弹出 b、a，相加后把 sum = a + b 的和压回
 操作数栈：[sum];
 :**ireturn**
-把 3 交回给 Demo.main，帧弹出
+把 sum 交回给 Demo.main，帧弹出
 方法结束;
 stop
 @enduml
