@@ -10,8 +10,11 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Path2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -41,6 +44,9 @@ import javax.swing.border.TitledBorder;
  * Run with:
  * javac AddFrameDemo.java
  * java AddFrameDemo
+ *
+ * Headless figure export for the article:
+ * java AddFrameDemo --render img
  */
 public class AddFrameDemo {
 
@@ -104,8 +110,46 @@ public class AddFrameDemo {
 
     private Timer timer;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
+        if (args.length == 2 && "--render".equals(args[0])) {
+            renderPreviews(args[1]);
+            return;
+        }
         SwingUtilities.invokeLater(AddFrameDemo::new);
+    }
+
+    private static void renderPreviews(String dir) throws Exception {
+        System.setProperty("java.awt.headless", "true");
+        File out = new File(dir);
+        out.mkdirs();
+
+        String[] names = {
+                "add-frame.png",
+                "add-step1-iload1.png",
+                "add-step2-iload2.png",
+                "add-step3-iadd.png",
+                "add-step4-ireturn.png"
+        };
+        List<Snapshot> steps = buildSnapshots(1, 2);
+        for (int i = 0; i < names.length; i++) {
+            FrameView view = new FrameView();
+            view.setSnapshot(steps.get(i));
+            writePng(view, 787, 366, new File(out, names[i]));
+        }
+        System.out.println("rendered to " + out.getAbsolutePath());
+    }
+
+    private static void writePng(JPanel panel, int w, int h, File file) throws Exception {
+        int scale = 2;
+        BufferedImage img = new BufferedImage(w * scale, h * scale, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = img.createGraphics();
+        g.scale(scale, scale);
+        g.setColor(Color.WHITE);
+        g.fillRect(0, 0, w, h);
+        panel.setSize(w, h);
+        panel.paint(g);
+        g.dispose();
+        ImageIO.write(img, "png", file);
     }
 
     private AddFrameDemo() {
