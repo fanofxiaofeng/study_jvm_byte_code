@@ -657,8 +657,8 @@ public class AddFrameDemo {
 
         private void paintLegend(Graphics2D g) {
             int y = FRAME_BOTTOM + 30;
-            legendItem(g, 30, y, FRESH_FILL, null, "just pushed");
-            legendItem(g, 190, y, VALUE_FILL, GRID_LINE, "existing value");
+            legendItem(g, 30, y, FRESH_FILL, null, "just written / pushed");
+            legendItem(g, 190, y, VALUE_FILL, GRID_LINE, "value in slot / stack");
             legendItem(g, 410, y, Color.WHITE, READ_COLOR, "read by this instruction");
             legendItem(g, 630, y, EMPTY_FILL, new Color(189, 189, 189), "empty");
         }
