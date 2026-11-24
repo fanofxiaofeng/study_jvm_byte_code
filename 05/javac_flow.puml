@@ -1,0 +1,34 @@
+@startuml
+title whileInt · javac 21（判断放开头）
+
+start
+:[0] //iconst_0//
+* 局部变量表: [this, ?]
+* 操作数栈: [0];
+:[1] //istore_1//
+* 局部变量表: [this, (i=)0]
+* 操作数栈: [];
+:[2] //iload_1//
+* 局部变量表: [this, (i=)0]
+* 操作数栈: [0];
+:[3] //iconst_3//
+* 局部变量表: [this, (i=)0]
+* 操作数栈: [0, 3];
+while ([4] //if_icmpge 13//  →  i < 3 ?) is (是)
+  :[7] //iinc 1, 1//
+  * 局部变量表: [this, (i=)i+1]
+  * 操作数栈: [];
+  :[10] //goto 2//（回跳到判断）
+  * 局部变量表: [this, i]
+  * 操作数栈: [];
+  :[2] //iload_1//
+  * 局部变量表: [this, i]
+  * 操作数栈: [i];
+  :[3] //iconst_3//
+  * 局部变量表: [this, i]
+  * 操作数栈: [i, 3];
+endwhile (否)
+:[13] //return//;
+stop
+
+@enduml
