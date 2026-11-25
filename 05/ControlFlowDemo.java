@@ -282,7 +282,7 @@ public class ControlFlowDemo {
             try {
                 d = Double.parseDouble(paramText.trim());
             } catch (NumberFormatException e) {
-                d = 2.5;
+                d = 100.1;
             }
             paramText = Double.toString(d);
             cp.put(4, d);
@@ -815,7 +815,7 @@ public class ControlFlowDemo {
     private JPanel paramPanel;
     private JTextField paramField;
 
-    private static final String[] PARAMS = {"100", "100", "2.5", "99.0", "101.0"};
+    private static final String[] PARAMS = {"100", "100", "100.1", "99.0", "101.0"};
 
     public static void main(String[] args) throws Exception {
         if (args.length == 2 && "--render".equals(args[0])) {
