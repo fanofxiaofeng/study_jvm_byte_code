@@ -1,0 +1,54 @@
+---
+title: whileInt · 两种排法对照
+---
+flowchart LR
+    subgraph spec["规范 3.5（判断放末尾）"]
+        direction TB
+        s_start((start))
+        s0["[0] <i>iconst_0</i>"]
+        s1["[1] <i>istore_1</i>"]
+        s2["[2] <i>goto 8</i>"]
+        s5["[5] <i>iinc 1, 1</i>"]
+        s8["[8] <i>iload_1</i>"]
+        s9["[9] <i>bipush 100</i>"]
+        s11{"[11] <i>if_icmplt 5</i><br/>i &lt; 100 ?"}
+        s14["[14] <i>return</i>"]
+        s_stop((stop))
+
+        s_start --> s0
+        s0 --> s1
+        s1 --> s2
+        s2 --> s8
+        s5 --> s8
+        s8 --> s9
+        s9 --> s11
+        s11 -->|Yes| s5
+        s11 -->|No| s14
+        s14 --> s_stop
+    end
+
+    subgraph javac["javac 21（判断放开头）"]
+        direction TB
+        j_start((start))
+        j0["[0] <i>iconst_0</i>"]
+        j1["[1] <i>istore_1</i>"]
+        j2["[2] <i>iload_1</i>"]
+        j3["[3] <i>bipush 100</i>"]
+        j5{"[5] <i>if_icmpge 14</i><br/>i &lt; 100 ?"}
+        j8["[8] <i>iinc 1, 1</i>"]
+        j11["[11] <i>goto 2</i>"]
+        j14["[14] <i>return</i>"]
+        j_stop((stop))
+
+        j_start --> j0
+        j0 --> j1
+        j1 --> j2
+        j2 --> j3
+        j3 --> j5
+        j5 -->|Yes| j8
+        j5 -->|No| j14
+        j8 --> j11
+        j11 --> j2
+        j14 --> j_stop
+    end
+    spec ~~~ javac
