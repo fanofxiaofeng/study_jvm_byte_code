@@ -249,7 +249,7 @@ public class ControlFlowDemo {
             try {
                 n = Integer.parseInt(paramText.trim());
             } catch (NumberFormatException e) {
-                n = 3;
+                n = 100;
             }
             n = Math.max(-128, Math.min(127, n));  // bipush has a signed byte operand
             paramText = String.valueOf(n);
@@ -815,7 +815,7 @@ public class ControlFlowDemo {
     private JPanel paramPanel;
     private JTextField paramField;
 
-    private static final String[] PARAMS = {"3", "3", "2.5", "99.0", "101.0"};
+    private static final String[] PARAMS = {"100", "100", "2.5", "99.0", "101.0"};
 
     public static void main(String[] args) throws Exception {
         if (args.length == 2 && "--render".equals(args[0])) {
@@ -1265,7 +1265,7 @@ public class ControlFlowDemo {
         private static final int ROW_HEIGHT = 34;
         private static final int LEFT = 78;
 
-        private Example ex = build(WHILE_INT_SPEC, "3");
+        private Example ex = build(WHILE_INT_SPEC, "100");
         private int stepIndex = 0;
 
         FlowView() {
@@ -1427,7 +1427,7 @@ public class ControlFlowDemo {
         private static final int LOCAL_TOP = 36;
         private static final int LEFT = 20;
 
-        private Example ex = build(WHILE_INT_SPEC, "3");
+        private Example ex = build(WHILE_INT_SPEC, "100");
         private int stepIndex = 0;
 
         RuntimeView() {
