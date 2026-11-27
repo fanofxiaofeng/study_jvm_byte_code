@@ -5,11 +5,11 @@ start
 repeat
   :**iload_1**
   把 i 压栈，栈：[i];
-  :**bipush 10**
-  把上界压栈，栈：[i, 10]（峰值即 stack=2）;
+  :**bipush 100**
+  把上界压栈，栈：[i, 100]（峰值即 stack=2）;
   :**if_icmpge 14**
   弹出 i 和上界比较，栈清空;
-  if (i >= 10 ?) then (成立)
+  if (i >= 100 ?) then (成立)
     :**return**
     帧弹出，方法结束;
     stop
