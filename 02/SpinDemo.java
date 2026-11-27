@@ -71,7 +71,7 @@ public class SpinDemo {
     private static final Color VALUE_FILL = new Color(232, 240, 254);
     /** A value written by the instruction executed in this step. */
     private static final Color FRESH_FILL = new Color(66, 133, 244);
-    /** Amber marks the local slot read by the current instruction. */
+    /** Amber marks a local slot read by this instruction, or the source of a stack value. */
     private static final Color READ_COLOR = new Color(244, 180, 0);
     private static final Color EMPTY_FILL = new Color(250, 250, 250);
     private static final Color GRID_LINE = new Color(174, 180, 186);
@@ -584,11 +584,11 @@ public class SpinDemo {
             g.drawString("local variable table", LVT_X, 66);
             g.drawString("operand stack (depth units)", STACK_X, 66);
 
-            boolean readI = snapshot.frameAlive()
+            boolean markI = snapshot.frameAlive()
                     && (snapshot.activeInstruction() == 2 || snapshot.activeInstruction() == 4);
             for (int slot = 0; slot < 2; slot++) {
                 paintLocalCell(g, slot, snapshot.locals()[slot],
-                        slot == 1 && readI,
+                        slot == 1 && markI,
                         slot == 1 && snapshot.freshLocal() == 1);
             }
 
@@ -768,11 +768,12 @@ public class SpinDemo {
         }
 
         private void paintLegend(Graphics2D g) {
-            int y = FRAME_BOTTOM + 30;
+            int y = FRAME_BOTTOM + 28;
             legendItem(g, 26, y, FRESH_FILL, null, "just written / pushed");
-            legendItem(g, 188, y, VALUE_FILL, GRID_LINE, "value in local slot / stack unit");
-            legendItem(g, 366, y, Color.WHITE, READ_COLOR, "read by this instruction");
-            legendItem(g, 540, y, EMPTY_FILL, new Color(189, 189, 189), "empty");
+            legendItem(g, 210, y, VALUE_FILL, GRID_LINE, "local slot / stack unit");
+            legendItem(g, 410, y, EMPTY_FILL, new Color(189, 189, 189), "empty");
+            legendItem(g, 26, y + 26, Color.WHITE, READ_COLOR,
+                    "read by this instruction / source of a stack value");
         }
 
         private void legendItem(Graphics2D g, int x, int y, Color fill, Color border, String text) {
