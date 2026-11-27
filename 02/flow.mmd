@@ -1,0 +1,24 @@
+flowchart TD
+    start((start))
+    n0["[0] <i>iconst_0</i><br/>把 0 压栈，栈：[0]"]
+    n1["[1] <i>istore_1</i><br/>弹出 0 存入 slot 1，栈：[]"]
+    n2["[2] <i>iload_1</i><br/>把 i 压栈，栈：[i]"]
+    n3["[3] <i>bipush 100</i><br/>把上界压栈，栈：[i, 100]（峰值即 stack=2）"]
+    n5["[5] <i>if_icmpge 14</i><br/>弹出 i 和上界比较，栈清空"]
+    n5c{"i &gt;= 100 ?"}
+    n8["[8] <i>iinc 1 1</i><br/>i 加 1（不经过操作数栈）"]
+    n11["[11] <i>goto 2</i><br/>无条件回跳到 offset 2"]
+    n14["[14] <i>return</i><br/>帧弹出，方法结束"]
+    stop((stop))
+
+    start --> n0
+    n0 --> n1
+    n1 --> n2
+    n2 --> n3
+    n3 --> n5
+    n5 --> n5c
+    n5c -->|成立| n14
+    n14 --> stop
+    n5c -->|不成立| n8
+    n8 --> n11
+    n11 -->|回跳| n2
