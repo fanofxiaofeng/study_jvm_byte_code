@@ -38,7 +38,7 @@ import javax.swing.border.TitledBorder;
  * <pre>
  * void spin() {
  *     int i;
- *     for (i = 0; i &lt; 10; i++) {
+ *     for (i = 0; i &lt; 100; i++) {
  *         ; // Loop body is empty
  *     }
  * }
@@ -47,7 +47,7 @@ import javax.swing.border.TitledBorder;
  * javac 21 compiles it to:
  *
  * <pre>
- *   0 iconst_0      1 istore_1      2 iload_1       3 bipush 10
+ *   0 iconst_0      1 istore_1      2 iload_1       3 bipush 100
  *   5 if_icmpge 14  8 iinc 1 1     11 goto 2       14 return
  * </pre>
  *
@@ -92,8 +92,8 @@ public class SpinDemo {
             new Instruction(0, "iconst_0", "push int constant 0"),
             new Instruction(1, "istore_1", "pop → local 1 (i)"),
             new Instruction(2, "iload_1", "push local 1 (i)"),
-            new Instruction(3, "bipush 10", "push int constant 10"),
-            new Instruction(5, "if_icmpge 14", "pop 2; i ≥ 10 → 14"),
+            new Instruction(3, "bipush 100", "push int constant 100"),
+            new Instruction(5, "if_icmpge 14", "pop 2; i ≥ 100 → 14"),
             new Instruction(8, "iinc 1 1", "i = i + 1"),
             new Instruction(11, "goto 2", "jump back to 2"),
             new Instruction(14, "return", "return void"));
@@ -338,7 +338,7 @@ public class SpinDemo {
         list.add(new Snapshot(1, locals.clone(), List.of(), true, 1, "i = 0",
                 "1: istore_1 — pop 0 and store it into local variable 1 (i = 0). depth 1 → 0."));
 
-        // loop body: 2: iload_1 → 3: bipush 10 → 5: if_icmpge → 8: iinc → 11: goto 2
+        // loop body: 2: iload_1 → 3: bipush 100 → 5: if_icmpge → 8: iinc → 11: goto 2
         int i = 0;
         int checks = 0;
         while (true) {
@@ -348,20 +348,20 @@ public class SpinDemo {
             list.add(new Snapshot(2, locals.clone(), List.of(new StackCell(String.valueOf(i), true)),
                     true, -1, "", "2: iload_1 — push local variable 1 (i = " + i + "). depth 0 → 1."));
 
-            // 3: bipush 10
+            // 3: bipush 100
             list.add(new Snapshot(3, locals.clone(), List.of(
                     new StackCell(String.valueOf(i), false),
-                    new StackCell("10", true)), true, -1, "",
-                    "3: bipush 10 — push int constant 10, which is stored as an immediate operand. "
+                    new StackCell("100", true)), true, -1, "",
+                    "3: bipush 100 — push int constant 100, which is stored as an immediate operand. "
                             + "depth 1 → 2, the maximum for this frame."));
 
             // 5: if_icmpge 14
-            boolean exit = i >= 10;
-            String note = "i = " + i + (exit ? " ≥ 10 → true, jump to 14" : " ≥ 10 → false, continue at 8");
+            boolean exit = i >= 100;
+            String note = "i = " + i + (exit ? " ≥ 100 → true, jump to 14" : " ≥ 100 → false, continue at 8");
             list.add(new Snapshot(4, locals.clone(), List.of(), true, -1, note,
-                    "5: if_icmpge 14 — pop 10 and i, then compare: " + i
-                            + (exit ? " is not less than 10, so pc jumps to 14: return."
-                            : " < 10, so execution continues at 8: iinc.")
+                    "5: if_icmpge 14 — pop 100 and i, then compare: " + i
+                            + (exit ? " is not less than 100, so pc jumps to 14: return."
+                            : " < 100, so execution continues at 8: iinc.")
                             + " depth 2 → 0."));
             if (exit) {
                 break;
@@ -384,8 +384,8 @@ public class SpinDemo {
 
         // 14: return
         list.add(new Snapshot(7, locals.clone(), List.of(), false, -1, "",
-                "14: return — after " + checks + " condition checks i = 10, so the frame is popped "
-                        + "and spin returns void to its caller."));
+                "14: return — after " + checks + " condition checks i = " + i
+                        + ", so the frame is popped and spin returns void to its caller."));
         return list;
     }
 
@@ -416,7 +416,7 @@ public class SpinDemo {
         private static final String[] LINES = {
                 "    void spin() {",
                 "        int i;",
-                "        for (i = 0; i < 10; i++) {",
+                "        for (i = 0; i < 100; i++) {",
                 "            ; // Loop body is empty",
                 "        }",
                 "    }"
@@ -751,7 +751,7 @@ public class SpinDemo {
         }
 
         private void paintDoneChip(Graphics2D g) {
-            String text = "return: spin() finished with i = 10";
+            String text = "return: spin() finished with i = 100";
             g.setFont(new Font(Font.MONOSPACED, Font.BOLD, 12));
             FontMetrics fm = g.getFontMetrics();
             int w = fm.stringWidth(text) + 28;
