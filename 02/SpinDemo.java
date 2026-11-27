@@ -67,11 +67,11 @@ public class SpinDemo {
     /** Dark gray for demo helper buttons. */
     private static final Color DEMO_COLOR = new Color(93, 93, 93);
 
-    /** A value that already sits in a slot or on the stack. */
+    /** A value that already sits in a local slot or a stack depth unit. */
     private static final Color VALUE_FILL = new Color(232, 240, 254);
     /** A value written by the instruction executed in this step. */
     private static final Color FRESH_FILL = new Color(66, 133, 244);
-    /** Amber marks the slot read by the current instruction. */
+    /** Amber marks the local slot read by the current instruction. */
     private static final Color READ_COLOR = new Color(244, 180, 0);
     private static final Color EMPTY_FILL = new Color(250, 250, 250);
     private static final Color GRID_LINE = new Color(174, 180, 186);
@@ -98,7 +98,7 @@ public class SpinDemo {
             new Instruction(11, "goto 2", "jump back to 2"),
             new Instruction(14, "return", "return void"));
 
-    /** One operand-stack cell; fresh means "pushed by the current instruction". */
+    /** One operand-stack depth unit; fresh means "pushed by the current instruction". */
     private record StackCell(String value, boolean fresh) {
     }
 
@@ -582,7 +582,7 @@ public class SpinDemo {
             g.setFont(SANS_SMALL);
             g.setColor(MUTED);
             g.drawString("local variable table", LVT_X, 66);
-            g.drawString("operand stack", STACK_X, 66);
+            g.drawString("operand stack (depth units)", STACK_X, 66);
 
             boolean readI = snapshot.frameAlive()
                     && (snapshot.activeInstruction() == 2 || snapshot.activeInstruction() == 4);
@@ -597,7 +597,7 @@ public class SpinDemo {
             int depth = snapshot.stack().size();
             g.setFont(MONO);
             g.setColor(MUTED);
-            g.drawString("depth = " + depth + " / 2", STACK_X, 232);
+            g.drawString("depth = " + depth + " / 2 units", STACK_X, 232);
 
             if (!snapshot.note().isEmpty()) {
                 g.setFont(MONO);
@@ -715,16 +715,16 @@ public class SpinDemo {
                             y + STACK_H / 2 + 4);
                 }
 
-                // stack index to the right of each cell: 0 is the bottom
+                // depth-unit index to the right of each cell: 0 is the bottom
                 g.setFont(MONO_SMALL);
                 g.setColor(MUTED);
-                g.drawString("slot " + i, STACK_X + STACK_W + 10, y + STACK_H / 2 + 4);
+                g.drawString("unit " + i, STACK_X + STACK_W + 10, y + STACK_H / 2 + 4);
             }
         }
 
-        /** Dashed amber arrow: a local slot is copied to a fresh stack cell. */
+        /** Dashed amber arrow: a local slot is copied to a fresh stack depth unit. */
         private void paintPushArrow(Graphics2D g, int localSlot, int stackIndex) {
-            // start below the slot numbers so the arrow never crosses another cell
+            // start below the slot numbers so the arrow never crosses another unit
             int x1 = LVT_X + localSlot * CELL_W + CELL_W / 2;
             int y1 = CELL_TOP + CELL_H + 26;
             int x2 = STACK_X - 7;
@@ -770,7 +770,7 @@ public class SpinDemo {
         private void paintLegend(Graphics2D g) {
             int y = FRAME_BOTTOM + 30;
             legendItem(g, 26, y, FRESH_FILL, null, "just written / pushed");
-            legendItem(g, 188, y, VALUE_FILL, GRID_LINE, "value in slot / stack");
+            legendItem(g, 188, y, VALUE_FILL, GRID_LINE, "value in local slot / stack unit");
             legendItem(g, 366, y, Color.WHITE, READ_COLOR, "read by this instruction");
             legendItem(g, 540, y, EMPTY_FILL, new Color(189, 189, 189), "empty");
         }
