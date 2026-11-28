@@ -11,6 +11,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -404,6 +405,7 @@ public class InstructionDemo {
     private ByteStreamView byteView;
     private RuntimeView runtimeView;
     private Timer timer;
+    private JSplitPane split;
 
     /** Current initial local values per method (slot 0 = this, followed by real parameters). */
     private final Map<String, int[]> paramValues = new HashMap<>();
@@ -413,6 +415,10 @@ public class InstructionDemo {
     public static void main(String[] args) throws Exception {
         if (args.length == 2 && "--render".equals(args[0])) {
             renderPreviews(args[1]);
+            return;
+        }
+        if (args.length == 2 && "--window".equals(args[0])) {
+            SwingUtilities.invokeLater(() -> new InstructionDemo(args[1]));
             return;
         }
         SwingUtilities.invokeLater(InstructionDemo::new);
@@ -465,6 +471,32 @@ public class InstructionDemo {
             paramValues.put(ex.prefix(), vals);
         }
         createAndShowGui();
+    }
+
+    private InstructionDemo(String exportDir) {
+        this();
+        SwingUtilities.invokeLater(() -> exportWindow(exportDir));
+    }
+
+    private void exportWindow(String dir) {
+        File out = new File(dir);
+        out.mkdirs();
+        split.setDividerLocation(0.42);
+        frame.validate();
+        int w = frame.getContentPane().getWidth();
+        int h = frame.getContentPane().getHeight();
+        BufferedImage image = new BufferedImage(w * 2, h * 2, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = image.createGraphics();
+        g.scale(2, 2);
+        frame.getContentPane().paint(g);
+        g.dispose();
+        try {
+            ImageIO.write(image, "png", new File(out, "instruction-window.png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            frame.dispose();
+        }
     }
 
     private void createAndShowGui() {
@@ -527,7 +559,7 @@ public class InstructionDemo {
         rightColumn.add(byteView);
         rightColumn.add(runtimeView);
 
-        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftColumn, rightColumn);
+        split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftColumn, rightColumn);
         split.setBorder(null);
         split.setContinuousLayout(true);
         split.setResizeWeight(0.42);
