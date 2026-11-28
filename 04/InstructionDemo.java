@@ -1031,14 +1031,19 @@ public class InstructionDemo {
                     g.drawString(value, 20 + (STACK_W - fm.stringWidth(value)) / 2, y + STACK_H / 2 + 5);
                     unit++;
                 }
-                g.setFont(MONO);
+                g.setFont(MONO_SMALL);
                 g.setColor(MUTED);
-                g.drawString("depth = " + step.stack().size() + " / " + ex.maxStack(), 152,
-                        stackBottom - STACK_H / 2 + 4);
+                for (int u = 0; u < ex.maxStack(); u++) {
+                    int y = stackBottom - (u + 1) * (STACK_H + STACK_GAP);
+                    g.drawString("unit " + u, 20 + STACK_W + 10, y + STACK_H / 2 + 4);
+                }
+                g.setFont(MONO);
+                g.drawString("depth = " + step.stack().size() + " / " + ex.maxStack() + " units",
+                        20, stackBottom + 16);
             }
 
             // constant pool
-            int cpTop = stackBottom + 36;
+            int cpTop = stackBottom + (ex.maxStack() > 0 ? 52 : 36);
             label(g, "constant pool", 20, cpTop - 8);
             if (ex.cp().isEmpty()) {
                 g.setFont(MONO);
