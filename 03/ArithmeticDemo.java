@@ -868,11 +868,11 @@ public class ArithmeticDemo {
                 unit += value.size();
             }
 
-            // stack slot numbers, 0 at the bottom
+            // stack depth-unit numbers, 0 at the bottom
             g.setFont(MONO_SMALL);
             g.setColor(MUTED);
             for (int u = 0; u < spec.maxStack(); u++) {
-                g.drawString("slot " + u, STACK_X + STACK_W + 10, stackUnitTop(u) + STACK_H / 2 + 4);
+                g.drawString("unit " + u, STACK_X + STACK_W + 10, stackUnitTop(u) + STACK_H / 2 + 4);
             }
         }
 
