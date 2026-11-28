@@ -12,6 +12,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -109,7 +110,7 @@ public class ArithmeticDemo {
         }
 
         String sourceTitle() {
-            return kind == Kind.ADD ? "Demo.java — class SimpleAdder" : "Demo.java — class Align";
+            return kind == Kind.ADD ? "Demo.java — class Arithmetic" : "Demo.java — class Align";
         }
 
         String footer() {
@@ -129,7 +130,7 @@ public class ArithmeticDemo {
                 };
             }
             return new String[]{
-                    "class SimpleAdder {",
+                    "class Arithmetic {",
                     "    public " + type + " add(" + type + " a, " + type + " b) {",
                     "        return a + b;",
                     "    }",
@@ -185,10 +186,16 @@ public class ArithmeticDemo {
     private BytecodeView bytecodeView;
     private FrameView frameView;
     private Timer timer;
+    private JFrame frame;
+    private JSplitPane split;
 
     public static void main(String[] args) throws Exception {
         if (args.length == 2 && "--render".equals(args[0])) {
             renderPreviews(args[1]);
+            return;
+        }
+        if (args.length == 2 && "--window".equals(args[0])) {
+            SwingUtilities.invokeLater(() -> new ArithmeticDemo(args[1]));
             return;
         }
         SwingUtilities.invokeLater(ArithmeticDemo::new);
@@ -230,8 +237,34 @@ public class ArithmeticDemo {
         createAndShowGui();
     }
 
+    private ArithmeticDemo(String exportDir) {
+        createAndShowGui();
+        SwingUtilities.invokeLater(() -> exportWindow(exportDir));
+    }
+
+    private void exportWindow(String dir) {
+        File out = new File(dir);
+        out.mkdirs();
+        split.setDividerLocation(0.4);
+        frame.validate();
+        int w = frame.getContentPane().getWidth();
+        int h = frame.getContentPane().getHeight();
+        BufferedImage image = new BufferedImage(w * 2, h * 2, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = image.createGraphics();
+        g.scale(2, 2);
+        frame.getContentPane().paint(g);
+        g.dispose();
+        try {
+            ImageIO.write(image, "png", new File(out, "arith-window.png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            frame.dispose();
+        }
+    }
+
     private void createAndShowGui() {
-        JFrame frame = new JFrame("JVM arithmetic demo — the operand stack in three methods");
+        frame = new JFrame("JVM arithmetic demo — the operand stack in three methods");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
@@ -294,7 +327,7 @@ public class ArithmeticDemo {
 
         frameView = new FrameView();
 
-        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftColumn, frameView);
+        split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftColumn, frameView);
         split.setBorder(null);
         split.setContinuousLayout(true);
         split.setResizeWeight(0.42);
@@ -938,7 +971,7 @@ public class ArithmeticDemo {
         private void paintLegend(Graphics2D g) {
             int y = FRAME_BOTTOM + 30;
             legendItem(g, 30, y, FRESH_FILL, null, "just pushed");
-            legendItem(g, 190, y, VALUE_FILL, GRID_LINE, "existing value");
+            legendItem(g, 190, y, VALUE_FILL, GRID_LINE, "local slot / stack unit");
             legendItem(g, 410, y, Color.WHITE, READ_COLOR, "read by this instruction");
             legendItem(g, 630, y, EMPTY_FILL, new Color(189, 189, 189), "empty");
         }
