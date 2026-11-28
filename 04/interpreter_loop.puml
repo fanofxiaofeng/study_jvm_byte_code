@@ -1,4 +1,4 @@
-@startuml
+@startuml jvm_interpreter_loop
 ' JVM 解释器主循环（JVMS 2.11）
 ' 对应文章第 27~31 行：
 '   do {
