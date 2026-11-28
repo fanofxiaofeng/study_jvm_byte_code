@@ -110,7 +110,9 @@ public class ArithmeticDemo {
         }
 
         String sourceTitle() {
-            return kind == Kind.ADD ? "Demo.java — class Arithmetic" : "Demo.java — class Align";
+            return kind == Kind.ADD
+                    ? "ArithmeticDemo.java — class Arithmetic"
+                    : "ArithmeticDemo.java — class Align";
         }
 
         String footer() {
