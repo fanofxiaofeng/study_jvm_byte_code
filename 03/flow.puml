@@ -1,13 +1,13 @@
 @startuml
 start
 :[0] //iload_1//
-//i// 压入 //slot 1//
+从 //slot 1// 读取 //i// 并压栈
 栈：[5];
 note right
   本图以 //i = 5// 为例进行说明
 end note
 :[1] //iload_2//
-//grain// 压入 //slot 2//
+从 //slot 2// 读取 //grain// 并压栈
 栈：[5, 4];
 note right
   本图以 //grain = 4// 为例进行说明
